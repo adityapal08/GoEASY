@@ -1,17 +1,43 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserDataContext } from "../context/UserContext.jsx";
+import axios from "axios";
+
 const UserLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setpassword] = useState("");
-  const [userData, setUserData] = useState({});
+  //const [userData, setUserData] = useState({});
+  const navigate = useNavigate();
 
-  const submitHandler = (e) => {
+  const { user, setUser } = useContext(UserDataContext);
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setUserData({ email: email, password: password });
-    console.log(userData);
-    setEmail("");
-    setpassword("");
+    try {
+      const userData = { email, password };
+      const response = await axios.post(
+        "http://localhost:4000/users/login",
+        userData
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        setUser(data.user);
+        localStorage.setItem("token", data.token);
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error(
+        "Login failed:",
+        error.response?.data?.message || error.message
+      );
+      alert(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setEmail("");
+      setpassword("");
+    }
   };
+
   return (
     <div className="p-7 h-screen flex flex-col justify-between">
       <div>

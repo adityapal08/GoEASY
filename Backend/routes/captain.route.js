@@ -7,6 +7,7 @@ import {
   registerCaptain,
 } from "../controllers/captain.controller.js";
 import { authCaptain } from "../middlewares/auth.middleware.js";
+
 const router = express.Router();
 
 router.post(
@@ -28,8 +29,9 @@ router.post(
     body("vehicle.capacity")
       .isInt({ min: 1 })
       .withMessage("Capacity must be atleast 1"),
+    // ✅ Case-insensitive vehicleType validation
     body("vehicle.vehicleType")
-      .isIn(["Car", "Bike", "Auto"])
+      .custom((value) => ["car", "bike", "auto"].includes(value.toLowerCase()))
       .withMessage("Vehicle type must be Car, Bike, or Auto"),
   ],
   registerCaptain
